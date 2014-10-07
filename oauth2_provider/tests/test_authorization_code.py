@@ -254,6 +254,26 @@ class TestAuthorizationCodeView(BaseTest):
         self.assertIn("error=access_denied", response['Location'])
         self.assertIn("state=random_state_string", response['Location'])
 
+    def test_code_post_auth_deny_no_state(self):
+        """
+        Test error when resource owner deny access
+        """
+        self.client.login(username="test_user", password="123456")
+
+        form_data = {
+            'client_id': self.application.client_id,
+            'scope': 'read write',
+            'redirect_uri': 'http://example.it',
+            'response_type': 'code',
+            'allow': False,
+        }
+
+        response = self.client.post(reverse('oauth2_provider:authorize'), data=form_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('http://example.it?', response['Location'])
+        self.assertIn("error=access_denied", response['Location'])
+        self.assertNotIn("state=", response['Location'])
+
     def test_code_post_auth_bad_responsetype(self):
         """
         Test authorization code is given for an allowed request with a response_type not supported
