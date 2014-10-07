@@ -1,5 +1,5 @@
 Sphinx==1.2.2
 South==1.0
-oauthlib>=0.6.2
+https://github.com/RodneyRichardson/oauthlib/archive/my-build.zip
 django-braces==1.4.0
 six
