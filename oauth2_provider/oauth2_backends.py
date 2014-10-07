@@ -78,7 +78,14 @@ class OAuthLibCore(object):
         """
         try:
             if not allow:
-                raise oauth2.AccessDeniedError()
+                error = oauth2.AccessDeniedError()
+                error.state = credentials['state']
+                error.redirect_uri = credentials['redirect_uri']
+                error.client_id = credentials['client_id']
+                error.scopes = scopes
+                error.response_type = credentials['response_type']
+                error.grant_type = None
+                raise error
 
             # add current user to credentials. this will be used by OAUTH2_VALIDATOR_CLASS
             credentials['user'] = request.user
@@ -90,9 +97,9 @@ class OAuthLibCore(object):
             return uri, headers, body, status
 
         except oauth2.FatalClientError as error:
-            raise FatalClientError(error=error, redirect_uri=credentials['redirect_uri'])
+            raise FatalClientError(error=error)
         except oauth2.OAuth2Error as error:
-            raise OAuthToolkitError(error=error, redirect_uri=credentials['redirect_uri'])
+            raise OAuthToolkitError(error=error)
 
     def create_token_response(self, request):
         """
